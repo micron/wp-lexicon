@@ -132,6 +132,7 @@ class Lexicon {
 	}
 	
 	function as_lexicon_look_for_keywords($content) {
+		
 		global $wpdb;
 		global $wp_query;
 		global $table_name;
@@ -155,15 +156,17 @@ class Lexicon {
 		# only in text elements we insert the href's to our lexicon
 		# prepare the html parser object
 		$parser = new HtmlParser($content);
+		$blogUrl = get_bloginfo('url');
+		
 		while ($parser->parse()) {   
 			if ($parser->iNodeType == NODE_TYPE_TEXT) {
 				for ($run=0;$run<count($keywords);$run++) {
 					# in case a keyword contains whitespaces
 					$dKeyword = str_replace(" ", "-", $keywords[$run]["name"]);
 					if ($seo==false) {
-						$parser->iNodeValue = str_replace($keywords[$run]["name"],"<a href=\"/?asenciclopedia=true&id=".$keywords[$run]["name"]."\">".$keywords[$run]["name"]."</a>", $parser->iNodeValue);
+						$parser->iNodeValue = str_replace($keywords[$run]["name"],"<a href=\"" . $blogUrl . "?asenciclopedia=true&id=".$keywords[$run]["name"]."\">".$keywords[$run]["name"]."</a>", $parser->iNodeValue);
 					} else {
-						$parser->iNodeValue = str_replace($keywords[$run]["name"],"<a href=\"/lexicon/$dKeyword\">".$keywords[$run]["name"]."</a>", $parser->iNodeValue);
+						$parser->iNodeValue = str_replace($keywords[$run]["name"],"<a href=\"" . $blogUrl . "/lexicon/$dKeyword\">".$keywords[$run]["name"]."</a>", $parser->iNodeValue);
 					}
 				}
 				$newcontent .= $parser->iNodeValue;
@@ -302,6 +305,7 @@ class Lexicon {
 		$posts[0]->{"post_mime_type"} = "";
 		$posts[0]->{"comment_count"} = 0;
 		$entry = array($posts[0]);
+
 		return $entry;
 	}
 	
@@ -350,8 +354,7 @@ class Lexicon {
       default: 
     }
     return $result;
-	}
-}
+	}}
 
 $myLexicon = new Lexicon();
 
