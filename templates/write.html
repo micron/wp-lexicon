@@ -1,0 +1,42 @@
+<script type="text/javascript" src="../wp-content/plugins/lexicon/libs/nicEdit.js"></script> 
+<script type="text/javascript">
+//<![CDATA[
+	bkLib.onDomLoaded(function() { nicEditors.allTextAreas() });
+//]]>
+</script>
+
+<form name="submit" method="post" action="<?=$action?>">
+<input type="hidden" name="action" value="save" />
+		
+<div class="wrap">
+	<h2><?php print $title; ?></h2>		
+	<div id="post-body">
+		<div id="titlediv">
+			<h3>Keyword</h3>
+			<div id="titlewrap">
+				<input type="text" name="post_title" size="30" tabindex="1" value="<?=$keyword?>" id="title" autocomplete="off" />
+			</div>
+		</div>	
+		<div class="postarea">
+			<h3>Content</h3>
+			<textarea name="content" cols="2" rows="2" style="width:100%;height:230px"><?php print $content; ?></textarea>
+		</div>
+	</div>
+	
+	<div id="poststuff">
+		<div class="submitbox" id="submitpost">
+		<div class="inside">
+			<br />
+			Press the button to save your lexicon entry.
+		</div>
+		<p class="submit">
+			<input type="hidden" name="user-id" id="user-id" value="" />
+			<input name="publish" type="submit" class="button button-highlighted" id="publish" tabindex="5" accesskey="p" value="Save" />
+			<br class="clear" />
+			<span id="autosave"></span>
+		</p>		
+	</div>
+	
+</div>
+
+</form>

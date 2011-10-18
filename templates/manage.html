@@ -1,0 +1,25 @@
+<div class="wrap">
+	<h2>Lexicon Administration</h2>
+
+	<br class="clear" />
+
+	<table class="widefat">
+	<thead>
+		<tr>
+			<th scope="col">Keyword</th>
+			<th scope="col" style="text-align:right">Action</th>
+		</tr>
+	</thead>
+	<tbody>
+	<?php foreach ($tableData as $row): ?>	
+	<tr>
+		<td><?=$row["keyword"]?></td>
+		<td style="text-align:right">
+			<a href="edit.php?page=lexicon_manage&action=edit&id=<?=$row["id"]?>"><img src="../wp-content/plugins/lexicon/assets/edit.png" style="border-width:0px" /></a>
+			<a onclick='javascript:(confirm("Delete <?=$row["keyword"]?>?")==false)? false : document.location.href="edit.php?page=lexicon_manage&action=delete&id=<?=$row["id"]?>";' href="javascript:void(0)"><img src="../wp-content/plugins/lexicon/assets/delete.png" style="border-width:0px" /></a>
+		</td>
+	</tr>
+	<?php endforeach; ?>
+	</tbody>
+	</table>
+</div>
