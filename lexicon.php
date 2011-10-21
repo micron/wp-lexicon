@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: lexicon
-Plugin URI: http://schipplock.de
-Description: Create an easy to use lexicon.
-Author: Andreas Schipplock
-Version: 2.0
-Author URI: http://schipplock.de
-*/
+ Plugin Name: lexicon
+ Plugin URI: http://schipplock.de
+ Description: Create an easy to use lexicon.
+ Author: Andreas Schipplock
+ Version: 2.0
+ Author URI: http://schipplock.de
+ */
 require_once(dirname(__FILE__).'/../../../wp-config.php');
 require_once(dirname(__FILE__).'/libs/htmlparser.inc.php');
 
@@ -28,17 +28,17 @@ class Lexicon {
 			add_action('parse_query', array(&$this, 'as_lexicon_parse_query'));
 		}
 	}
-  
-  function sanitize_keyword($keyword) {
-    return $keyword;
-  }
-	
+
+	function sanitize_keyword($keyword) {
+		return $keyword;
+	}
+
 	function as_lexicon_init() {
 		global $wp_rewrite;
-    $this->as_lexicon_setup();
+		$this->as_lexicon_setup();
 		$wp_rewrite->flush_rules();
 	}
-	
+
 	function as_lexicon_setup() {
 		global $wpdb;
 		global $table_name;
@@ -50,7 +50,7 @@ class Lexicon {
 						unique key keyword (keyword)
 					);";
 			mysql_query($sql) or file_put_contents(dirname(__FILE__).'/error.log', mysql_error());
-			
+				
 			//adding initial data
 			$insert = "INSERT INTO " . $table_name .
 			            " (keyword,content) " .
@@ -59,18 +59,18 @@ class Lexicon {
 			$results = mysql_query( $insert );
 		}
 	}
-	
-	
+
+
 	function as_lexicon_admin() {
 		add_submenu_page('post-new.php', 'Add Lexicon entry', 'Add Lexicon entry', 8, "lexicon_add", array(&$this, 'as_lexicon_write'));
 		add_submenu_page('edit.php', 'Edit Lexicon entry', 'Edit Lexicon entry', 8, "lexicon_manage", array(&$this, 'as_lexicon_manage'));
 	}
-	
+
 	function as_lexicon_manage() {
 		global $wpdb;
 		global $wp_query;
 		global $table_name;
-		
+
 		# if a deletion was requested
 		if ($_GET["action"] == "delete") {
 			$sql = "delete from ".$table_name." where keyword = '".$_GET["id"]."';";
@@ -78,7 +78,7 @@ class Lexicon {
 			$message = "Your lexicon entry has been successfully deleted.";
 			require(dirname(__FILE__)."/templates/message.html");
 		}
-		
+
 		# edit a keyword entry
 		if ($_GET["action"] == "edit") {
 			if ($_GET["updateData"] == "true") {
@@ -118,25 +118,25 @@ class Lexicon {
 				require_once(dirname(__FILE__)."/templates/write.html");
 			}
 		}
-		
+
 		# list all lexicon keywords/entries
 		$sql = "select keyword from ".$table_name." order by keyword desc;";
 		$res = mysql_query($sql) or die("dberr");
-		
+
 		$tableData = array();
 		while(list($keyword)=mysql_fetch_array($res)) {
 			array_push($tableData, array("id"=>$keyword,"keyword"=>$keyword));
 		}
-		
+
 		require_once(dirname(__FILE__)."/templates/manage.html");
 	}
-	
+
 	function as_lexicon_look_for_keywords($content) {
-		
+
 		global $wpdb;
 		global $wp_query;
 		global $table_name;
-    global $seo;
+		global $seo;
 
 		# get all keywords from database
 		$sql = "select keyword from $table_name;";
@@ -157,8 +157,8 @@ class Lexicon {
 		# prepare the html parser object
 		$parser = new HtmlParser($content);
 		$blogUrl = get_bloginfo('url');
-		
-		while ($parser->parse()) {   
+
+		while ($parser->parse()) {
 			if ($parser->iNodeType == NODE_TYPE_TEXT) {
 				for ($run=0;$run<count($keywords);$run++) {
 					# in case a keyword contains whitespaces
@@ -203,18 +203,18 @@ class Lexicon {
 		if ($wp_query->query_vars['asenciclopedia']=="true") {
 			$newcontent = $content;
 		}
-		
+
 		return $newcontent;
 	}
-	
+
 	function as_lexicon_write() {
 		global $wpdb;
 		global $table_name;
-		
+
 		if ($_POST["action"]=="save") {
 			$keyword = $this->sanitize_keyword($_POST["post_title"]);
 			$content = $_POST["content"];
-			
+				
 			# check if keyword already exists
 			$res = mysql_query("select keyword from $table_name where keyword='$keyword' limit 1;");
 			list($dbkeyword)=mysql_fetch_array($res);
@@ -245,23 +245,24 @@ class Lexicon {
 		$action = "edit.php?page=lexicon_add";
 		require_once(dirname(__FILE__)."/templates/write.html");
 	}
-	
+
 	function as_lexicon_influence_posts($posts) {
 		global $wpdb;
 		global $wp_query;
 		global $table_name;
-    global $seo_titles;
-    global $show_footer;
-    
-    $showFooter = $show_footer;
+		global $seo_titles;
+		global $show_footer;
+
+		$showFooter = $show_footer;
 		
+
 		# if you set seo titles to yes the blogname and title will be changed
 		# but only if you are viewing a lexicon entry of course
 		if ($seo_titles=="true") {
 			add_filter('wp_title', array(&$this, 'as_lexicon_modify_title'));
 			add_filter('bloginfo', array(&$this, 'as_lexicon_bloginfo'), 1, 2);
 		}
-		
+
 		$id = $this->sanitize_keyword($wp_query->query_vars['id']);
 		$res = mysql_query("select keyword,content from $table_name where keyword='$id' limit 1;");
 		list($dbkeyword,$dbcontent)=mysql_fetch_array($res) or die("dberr on select");
@@ -308,7 +309,7 @@ class Lexicon {
 
 		return $entry;
 	}
-	
+
 	function as_lexicon_influence_rewrite_rules($rules) {
 		$newrules = array();
 		$newrules['lexicon/(.+)$']='index.php?id=$matches[1]&asenciclopedia=true';
@@ -316,44 +317,119 @@ class Lexicon {
 		update_option("as_lexicon_did_rewrite_regen", "false", "rewrite ruleset regeneration", "no");
 		return $newrules+$rules;
 	}
-	
+
 	function as_lexicon_query_vars($vars) {
 		array_push($vars, 'asenciclopedia', 'id');
 		return $vars;
 	}
-	
+
 	function as_lexicon_parse_query($query) {
+		
 		if ($query->query_vars['asenciclopedia']=="true") {
 			add_filter('the_posts', array(&$this, 'as_lexicon_influence_posts'));
+		}else{
+			if($query->query_vars['pagename'] == 'lexicon'){
+				add_filter('the_posts', array(&$this, 'as_lexicon_get_list'));
+			}
 		}
 	}
 	
+	/**
+	 * Generates an keyword list with the entries fetched from the db
+	 */
+	function as_lexicon_get_list(){
+		global $wpdb;
+		global $wp_query;
+		global $table_name;
+		$c = 0;
+		$letters = 'abcdefghijklmnoupqrstvwxyz';
+		$output = array();
+		$results = array();
+		
+		$keywords = mysql_query("SELECT * FROM " . $table_name);
+		
+		while ($row = mysql_fetch_array($keywords)) {
+    		$results[] = $row['keyword'];
+		}
+		
+		$keywords = mysql_fetch_array($keywords, MYSQL_NUM);
+		
+		if(count($results)){
+			$output[] = '<div class="lexicon-list">';
+			
+			while($letters[$c]){
+				$output[] = '<div class="letter letter-' . $letters[$c] . '">';
+				$output[] = '<h4 class="single-letter">' . $letters[$c] . '</h4>';
+				foreach($results as $keyword){
+					if(preg_match('/^' . $letters[$c] . '+/i', $keyword)){
+						$output[] = '<div class="result result-' . $letters[$c] . '">' . $keyword . '</div>';
+					}
+				}
+				
+				$output[] = '</div>';
+				$c++;
+			}
+			
+			$output[] = '</div>';
+		}
+		
+		$content = implode($output);
+		
+		$posts[0]->{"post_content"} = $content;
+		$posts[0]->{"post_title"} = $keyword;
+		$posts[0]->{"ID"} = "";
+		$posts[0]->{"post_author"} = "lexicon";
+		$posts[0]->{"post_date"} = "";
+		$posts[0]->{"post_date_gmt"} = "";
+		$posts[0]->{"post_category"} = "";
+		$posts[0]->{"post_excerpt"} = "";
+		$posts[0]->{"post_status"} = "publish";
+		$posts[0]->{"comment_status"} = "close";
+		$posts[0]->{"ping_status"} = "close";
+		$posts[0]->{"post_password"} = "";
+		$posts[0]->{"post_name"} = "";
+		$posts[0]->{"to_ping"} = "";
+		$posts[0]->{"pinged"} = "";
+		$posts[0]->{"post_modified"} = "";
+		$posts[0]->{"post_modified_gmt"} = "";
+		$posts[0]->{"post_content_filtered"} = "";
+		$posts[0]->{"post_parent"} = 0;
+		$posts[0]->{"guid"} = "#";
+		$posts[0]->{"menu_order"} = 0;
+		$posts[0]->{"post_type"} = "post";
+		$posts[0]->{"post_mime_type"} = "";
+		$posts[0]->{"comment_count"} = 0;
+		$entry = array($posts[0]);
+
+		return $entry;
+	}
+
 	function as_lexicon_modify_title($title) {
-		# I can print the title here but as almost all themes are 
+		# I can print the title here but as almost all themes are
 		# printing bloginfo('name') first before they print wp_title
 		# I decided not to print the title
-		# Instead I catch bloginfo('name') and override the blog's name 
+		# Instead I catch bloginfo('name') and override the blog's name
 		# which is shown first then
 		print "";
 	}
-	
+
 	function as_lexicon_bloginfo($result='', $show='') {
 		global $wpdb;
 		global $wp_query;
 		global $table_name;
-		
+
 		switch ($show) {
 			case 'name':{
 				$id = $this->sanitize_keyword($wp_query->query_vars['id']);
 				$res = mysql_query("select keyword from $table_name where keyword='$id' limit 1;");
 				list($dbkeyword)=mysql_fetch_array($res) or die("dberr on select");
 				$keyword = $dbkeyword;
-        $result = $keyword." - ".get_option("blogname");
-        break;
-      }
-      default: 
-    }
-    return $result;
+				$result = $keyword." - ".get_option("blogname");
+				break;
+			}
+			default:
+		}
+		return $result;
 	}}
 
 $myLexicon = new Lexicon();
